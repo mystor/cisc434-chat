@@ -1,6 +1,7 @@
 package cisc434.androidchat;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,13 +15,14 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-class LoginTask extends AsyncTask<M.Login, Void, Void> {
+class LoginTask extends AsyncTask<M.Login, Void, Boolean> {
 
     static String TAG = "chatApp";
 
@@ -35,20 +37,20 @@ class LoginTask extends AsyncTask<M.Login, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(M.Login... logins) {
+    protected Boolean doInBackground(M.Login... logins) {
         if (logins.length != 1) {
-            return null;
+            return false;
         }
 
         M.Login login = logins[0];
 
-        Log.i(TAG, server + ":" + port);
+        Log.i(TAG, "Connecting to " + server + ":" + port);
         try {
             Conn.s = new Socket(server, port);
         } catch (Exception e) {
             Log.e(TAG, e.toString());
             Conn.clear();
-            return null;
+            return false;
         }
 
         try {
@@ -64,18 +66,26 @@ class LoginTask extends AsyncTask<M.Login, Void, Void> {
         } catch (Exception e) {
             Log.e(TAG, e.toString());
             Conn.clear();
-            return null;
+            return false;
         }
 
-
-        Log.w(TAG, "Logged In...");
-        return null;
+        Log.w(TAG, "Logged In");
+        return true;
     }
 
     @Override
-    protected void onPostExecute(Void s) {
-        Intent intent = new Intent(activity, ChatActivity.class);
-        activity.startActivity(intent);
+    protected void onPostExecute(Boolean success) {
+        if (success) {
+            Intent intent = new Intent(activity, ChatActivity.class);
+            activity.startActivity(intent);
+        } else {
+            Context context = activity.getApplicationContext();
+            CharSequence text = "Login failed...";
+            int duration = Toast.LENGTH_LONG;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+        }
     }
 
 }
@@ -93,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
     }
 
     @Override
