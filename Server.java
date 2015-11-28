@@ -23,7 +23,7 @@ class User implements Runnable {
     public synchronized void send(Serializable o) {
         try {
             os.writeObject(o);
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.err.println("There was a problem sending a message...");
             disconnect();
         }
@@ -38,7 +38,7 @@ class User implements Runnable {
         disconnected = true;
         try {
             sock.close();
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -46,24 +46,31 @@ class User implements Runnable {
     @Override
     public void run() {
         // Perform the login process. First we wait for an object from the client
-        M.Login login;
+        Object message;
         try {
-            login = (M.Login)is.readObject();
+            message = is.readObject();
         } catch (Exception e) {
             e.printStackTrace();
-            try {sock.close();} catch (Exception e2) {}
-            return;
-        }
-        if (login == null) {
-            System.err.println("There was a problem logging in");
-            try {sock.close();} catch (Exception e) {}
+            try {
+                sock.close();
+            } catch (IOException e2) {e2.printStackTrace();}
             return;
         }
 
-        name = login.username;
-        // Attempt to login!
-        if (!server.login(this, login.password)) {
-            try {sock.close();} catch (Exception e) {}
+        if (message instanceof M.Login) {
+            M.Login login = (M.Login) message;
+
+            name = login.username;
+            // Attempt to login!
+            if (!server.login(this, login.password)) {
+                try {
+                    sock.close();
+                } catch (IOException e) {e.printStackTrace();}
+                return;
+            }
+        } else {
+            System.err.println("There was a problem logging in");
+            try {sock.close();} catch (IOException e) {e.printStackTrace();}
             return;
         }
 
@@ -77,12 +84,15 @@ class User implements Runnable {
             try {
                 msg = is.readObject();
             } catch (Exception e) {
+                // XXX: Maybe disconnect from the server?
                 e.printStackTrace();
                 msg = null;
+                continue;
             }
 
-            M.JoinChannel jc = (M.JoinChannel)msg;
-            if (jc != null) {
+            if (msg instanceof M.JoinChannel) {
+                M.JoinChannel jc = (M.JoinChannel)msg;
+
                 Room r = server.joinChannel(jc.channel, this);
                 if (r != null) {
                     rooms.add(r);
@@ -90,14 +100,16 @@ class User implements Runnable {
                 continue;
             }
 
-            M.SendMessage sm = (M.SendMessage)msg;
-            if (sm != null) {
+            if (msg instanceof M.SendMessage) {
+                M.SendMessage sm = (M.SendMessage)msg;
+
                 server.sendMessage(this, sm.recepient, sm.body);
                 continue;
             }
 
-            M.ListUsersReq lu = (M.ListUsersReq) msg;
-            if (lu != null) {
+            if (msg instanceof M.ListUsersReq) {
+                M.ListUsersReq lu = (M.ListUsersReq) msg;
+
                 TreeSet<String> usersList = server.usersList(lu.channel);
                 M.ListUsers response = new M.ListUsers();
                 response.channel = lu.channel;
@@ -122,8 +134,8 @@ class Room {
         messages = new ArrayList<M.RcvMessage>();
         server = s;
 
-        M.DMRecepient dr = (M.DMRecepient)recepient;
-        if (dr != null) {
+        if (recepient instanceof M.DMRecepient) {
+            M.DMRecepient dr = (M.DMRecepient)recepient;
             // Add all of the users to this room
             users = new TreeSet<String>(dr.recepients);
             // XXX: Do we want to tell users that they joined a group chat?
