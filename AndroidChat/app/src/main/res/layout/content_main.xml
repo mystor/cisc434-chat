@@ -13,12 +13,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/txtUsername"
-        android:layout_alignParentTop="true"
+        android:hint="Username"
+        android:layout_below="@+id/txtServer"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:text="user" />
+        android:layout_alignRight="@+id/txtServer"
+        android:layout_alignEnd="@+id/txtServer" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -26,37 +26,35 @@
         android:inputType="textPassword"
         android:ems="10"
         android:id="@+id/txtPassword"
+        android:hint="Password"
         android:layout_below="@+id/txtUsername"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="26dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:text="pass" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Login"
         android:id="@+id/btnLogin"
+        android:clickable="true"
+        android:onClick="sayHello"
         android:layout_below="@+id/txtPassword"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:clickable="true"
-        android:onClick="sayHello" />
+        android:layout_alignParentStart="true" />
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/txtServer"
-        android:layout_below="@+id/btnLogin"
+        android:hint="Server &lt;ip>:&lt;port>"
+        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="152dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:text="server" />
+        android:layout_alignRight="@+id/txtPassword"
+        android:layout_alignEnd="@+id/txtPassword" />
 
 </RelativeLayout>
