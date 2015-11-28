@@ -1,5 +1,6 @@
 package cisc434.androidchat;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -44,7 +45,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void sayHello(View v){
-        Log.w("chatApp", "Login pressed");
+        Intent intent = new Intent(this, ChatActivity.class);
+        startActivity(intent);
     }
 
 
