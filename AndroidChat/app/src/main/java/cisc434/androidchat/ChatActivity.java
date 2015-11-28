@@ -77,8 +77,8 @@ public class ChatActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_exit) {
+            System.exit(0);
         }
 
         return super.onOptionsItemSelected(item);
