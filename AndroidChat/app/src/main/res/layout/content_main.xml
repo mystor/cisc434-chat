@@ -55,6 +55,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignRight="@+id/txtPassword"
-        android:layout_alignEnd="@+id/txtPassword" />
+        android:layout_alignEnd="@+id/txtPassword"
+        android:text="10.0.2.2:9095" />
 
 </RelativeLayout>
