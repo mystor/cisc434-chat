@@ -39,6 +39,19 @@ public class M {
 
             return or.recepients.equals(recepients);
         }
+
+        @Override
+        public String toString() {
+            Iterator<String> iter = recepients.iterator();
+            String s = iter.next();
+            String it = iter.next();
+            while (it != null) {
+                s += ",";
+                s += it;
+                it = iter.next();
+            }
+            return s;
+        }
     }
     public static class ChannelRecepient implements Recepient {
         public final String channel;
@@ -60,6 +73,11 @@ public class M {
             }
 
             return or.channel.equals(channel);
+        }
+
+        @Override
+        public String toString() {
+            return "#" + channel;
         }
     }
 
