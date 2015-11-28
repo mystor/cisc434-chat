@@ -1,17 +1,91 @@
 package cisc434.androidchat;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+
+class LoginTask extends AsyncTask<M.Login, Void, Void> {
+
+    static String TAG = "chatApp";
+
+    private Activity activity;
+    private String server;
+    private int port;
+
+    public LoginTask(Activity activity, String server, int port) {
+        this.activity = activity;
+        this.server = server;
+        this.port = port;
+    }
+
+    @Override
+    protected Void doInBackground(M.Login... logins) {
+        if (logins.length != 1) {
+            return null;
+        }
+
+        M.Login login = logins[0];
+
+        Log.i(TAG, server + ":" + port);
+        try {
+            Conn.s = new Socket(server, port);
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
+            Conn.clear();
+            return null;
+        }
+
+        try {
+            Conn.is = new ObjectInputStream(Conn.s.getInputStream());
+            Conn.os = new ObjectOutputStream(Conn.s.getOutputStream());
+
+            Conn.os.writeObject(login);
+            Object response = Conn.is.readObject();
+
+            if (!(response instanceof M.LoggedIn)) {
+                throw new Exception("SHIT");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
+            Conn.clear();
+            return null;
+        }
+
+
+        Log.w(TAG, "Logged In...");
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void s) {
+        Intent intent = new Intent(activity, ChatActivity.class);
+        activity.startActivity(intent);
+    }
+
+}
+
 
 public class MainActivity extends AppCompatActivity {
+
+    static String TAG = "chatApp";
+
+    Socket socket;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +119,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void sayHello(View v){
-        Intent intent = new Intent(this, ChatActivity.class);
-        startActivity(intent);
+        EditText username = (EditText) findViewById(R.id.txtUsername);
+        String un = username.getText().toString();
+        EditText password = (EditText) findViewById(R.id.txtPassword);
+        String pass = password.getText().toString();
+        EditText server = (EditText) findViewById(R.id.txtServer);
+        String srv = server.getText().toString();
+
+        String[] parts = srv.split(":");
+
+        if (parts.length != 2) {
+            Log.w(TAG, "The server parts were wrong! What's wrong with you evil person!");
+        }
+
+        String ip = parts[0];
+        int port = Integer.parseInt(parts[1]);
+
+        M.Login login = new M.Login();
+        login.username = un;
+        login.password = pass;
+
+        new LoginTask(this, ip, port).execute(login);
     }
 
 

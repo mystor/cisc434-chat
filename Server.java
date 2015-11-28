@@ -1,6 +1,8 @@
 import java.io.*;
+import java.io.IOException;
 import java.net.*;
 import java.util.*;
+import cisc434.androidchat.M;
 
 class User implements Runnable {
     public String name;
@@ -68,6 +70,15 @@ class User implements Runnable {
                 } catch (IOException e) {e.printStackTrace();}
                 return;
             }
+
+            // Tell the client that it successfully logged in!
+            try {
+                os.writeObject(new M.LoggedIn());
+            } catch (IOException e) {
+                e.printStackTrace();
+                try {sock.close();} catch (IOException e2) {e.printStackTrace();}
+                return;
+            }
         } else {
             System.err.println("There was a problem logging in");
             try {sock.close();} catch (IOException e) {e.printStackTrace();}
@@ -84,7 +95,7 @@ class User implements Runnable {
             try {
                 msg = is.readObject();
             } catch (Exception e) {
-                // XXX: Maybe disconnect from the server?
+                disconnect();
                 e.printStackTrace();
                 msg = null;
                 continue;
@@ -260,12 +271,16 @@ class Server {
     }
 
     public void run() throws IOException {
-        ServerSocket listener = new ServerSocket(9000);
+        ServerSocket listener = new ServerSocket(9095);
+
+        System.out.println("Listener opened");
 
         try {
             while (true) {
                 try {
+                    System.out.println("HERE");
                     Socket socket = listener.accept();
+                    System.out.println("Accepted connection");
                     User user = new User(this, socket);
                     Thread t = new Thread(user);
                     t.start();

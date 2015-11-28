@@ -1,3 +1,5 @@
+package cisc434.androidchat;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -7,6 +9,8 @@ public class M {
         public String username;
         public String password;
     }
+
+    public static class LoggedIn implements Serializable {}
 
     /**
      * An interface representing the recepient of a given message
