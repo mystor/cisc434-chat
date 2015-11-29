@@ -85,7 +85,7 @@ public class M {
      * A request to join a channel
      */
     public static class JoinChannel implements Serializable {
-        public String channel;
+        public Recepient recepient;
     }
 
     // XXX: Leave channel message?

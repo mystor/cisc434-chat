@@ -1,9 +1,65 @@
 package cisc434.androidchat;
 
+import android.os.AsyncTask;
+import android.util.Log;
+
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OptionalDataException;
 import java.net.Socket;
 import java.util.HashMap;
+
+class ConnThread implements Runnable {
+
+    private final Socket socket;
+    private final ObjectInputStream is;
+    private final ChatActivity activity;
+
+    public ConnThread(Socket socket, ObjectInputStream is, ChatActivity activity) {
+        this.socket = socket;
+        this.is = is;
+        this.activity = activity;
+    }
+
+    @Override
+    public void run() {
+        try {
+            while (true) {
+                Object message = is.readObject();
+
+                if (message instanceof M.RcvMessage) {
+                    M.RcvMessage rm = (M.RcvMessage) message;
+                    ChatRoom room = Conn.getRoom(activity, rm.recepient);
+                    room.addMessage(rm);
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            activity.updateMessages();
+                        }
+                    });
+                }
+
+                if (message instanceof M.ListUsers) {
+                    final M.ListUsers lu = (M.ListUsers) message;
+
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            activity.listUsers(lu);
+                        }
+                    });
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                socket.close();
+            } catch (Exception e) {e.printStackTrace();}
+        }
+    }
+}
 
 /**
  * Created by mlayzell on 2015-11-28.
@@ -13,7 +69,41 @@ public class Conn {
     public static ObjectInputStream is = null;
     public static ObjectOutputStream os = null;
 
-    public static HashMap<M.Recepient, ChatRoom> rooms = new HashMap<>();
+    public static M.Recepient recepient = null;
+    private static HashMap<M.Recepient, ChatRoom> rooms = new HashMap<>();
+
+    public static synchronized ChatRoom getRoom(final ChatActivity activity, M.Recepient recepient) {
+        if (!rooms.containsKey(recepient)) {
+            rooms.put(recepient, new ChatRoom(recepient));
+
+            M.JoinChannel req = new M.JoinChannel();
+            req.recepient = recepient;
+            new AsyncTask<M.JoinChannel, Void, Boolean>() {
+                @Override
+                protected Boolean doInBackground(M.JoinChannel... params) {
+                    try {
+                        os.writeObject(params[0]);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                    return true;
+                }
+
+                @Override
+                protected void onPostExecute(Boolean b) {
+                    if (!b) {
+                        Log.e("chatApp", "Channel Joined");
+                    }
+                }
+            }.execute(req);
+        }
+
+        return rooms.get(recepient);
+    }
+
+    public static void startConnThread(ChatActivity activity) {
+        new Thread(new ConnThread(s, is, activity)).start();
+    }
 
     public static void clear() {
         if (s != null) {
@@ -22,6 +112,9 @@ public class Conn {
         s = null;
         is = null;
         os = null;
+        recepient = null;
         rooms = new HashMap<>();
+
+        // System.exit(0);
     }
 }

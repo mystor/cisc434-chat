@@ -104,7 +104,7 @@ class User implements Runnable {
             if (msg instanceof M.JoinChannel) {
                 M.JoinChannel jc = (M.JoinChannel)msg;
 
-                Room r = server.joinChannel(jc.channel, this);
+                Room r = server.joinChannel(jc.recepient, this);
                 if (r != null) {
                     rooms.add(r);
                 }
@@ -219,8 +219,7 @@ class Server {
         return true;
     }
 
-    public synchronized Room joinChannel(String channel, User user) {
-        M.Recepient recepient = new M.ChannelRecepient(channel);
+    public synchronized Room joinChannel(M.Recepient recepient, User user) {
         Room room = chatrooms.get(recepient);
         if (room == null) {
             room = new Room(this, recepient);
@@ -234,6 +233,7 @@ class Server {
     }
 
     public synchronized boolean sendMessage(User user, M.Recepient recepient, String message) {
+        System.out.println("Sent a message!");
         Date date = new Date();
         Room room = chatrooms.get(recepient);
         if (room == null) {
@@ -242,7 +242,6 @@ class Server {
         }
 
         room.sendMessage(user.name, date, message);
-
         return true;
     }
 
