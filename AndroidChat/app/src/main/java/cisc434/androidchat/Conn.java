@@ -72,10 +72,24 @@ public class Conn {
     public static ObjectInputStream is = null;
     public static ObjectOutputStream os = null;
 
-    public static M.Recepient recepient = null;
+    private static M.Recepient recepient = null;
     private static HashMap<M.Recepient, ChatRoom> rooms = new HashMap<>();
 
     public static ArrayList<M.Recepient> roomList = new ArrayList<>();
+
+    public static synchronized M.Recepient getRecepient() {
+        return recepient;
+    }
+
+    public static synchronized void setRecepient(final ChatActivity activity, final M.Recepient recepient) {
+        Conn.recepient = recepient;
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                activity.setTitle(recepient.toString());
+            }
+        });
+    }
 
     public static synchronized ChatRoom getRoom(final ChatActivity activity, M.Recepient recepient) {
         if (!rooms.containsKey(recepient)) {

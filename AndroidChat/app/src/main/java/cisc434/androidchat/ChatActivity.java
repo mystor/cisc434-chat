@@ -120,7 +120,7 @@ public class ChatActivity extends AppCompatActivity
                 if (text.equals("")) {
                     return false;
                 }
-                new SendMessageTask(Conn.recepient, text).execute();
+                new SendMessageTask(Conn.getRecepient(), text).execute();
 
                 Log.w("chatApp", v.getText().toString());
                 v.setText("");
@@ -128,8 +128,8 @@ public class ChatActivity extends AppCompatActivity
             }
         });
 
-        Conn.recepient = new M.ChannelRecepient("general");
-        Conn.getRoom(this, Conn.recepient);
+        Conn.setRecepient(this, new M.ChannelRecepient("general"));
+        Conn.getRoom(this, Conn.getRecepient());
         Conn.startConnThread(this);
     }
 
@@ -164,7 +164,7 @@ public class ChatActivity extends AppCompatActivity
         }
 
         if (id == R.id.action_users) {
-            new ListUsersTask(Conn.recepient).execute();
+            new ListUsersTask(Conn.getRecepient()).execute();
         }
 
         return super.onOptionsItemSelected(item);
@@ -186,7 +186,7 @@ public class ChatActivity extends AppCompatActivity
                             M.Recepient recipient =
                                     M.RecepientFactory.parse(et.getText().toString());
                             Conn.getRoom(ChatActivity.this, recipient);
-                            Conn.recepient = recipient;
+                            Conn.setRecepient(ChatActivity.this, recipient);
                             updateMessages();
                         }
                     })
@@ -199,7 +199,7 @@ public class ChatActivity extends AppCompatActivity
         } else {
             M.Recepient recipient = M.RecepientFactory.parse(title);
             ChatRoom room = Conn.getRoom(this, recipient);
-            Conn.recepient = recipient;
+            Conn.setRecepient(this, recipient);
             updateMessages();
         }
 
@@ -210,7 +210,7 @@ public class ChatActivity extends AppCompatActivity
 
     public void updateMessages() {
         // XXX: Implement
-        ChatRoom room = Conn.getRoom(this, Conn.recepient);
+        ChatRoom room = Conn.getRoom(this, Conn.getRecepient());
         List<M.RcvMessage> messages = room.getMessages();
 
         StringBuilder builder = new StringBuilder();
@@ -218,7 +218,6 @@ public class ChatActivity extends AppCompatActivity
             builder.append("<");
             SimpleDateFormat sdf = new SimpleDateFormat("h:mm a");
             builder.append(sdf.format(message.when));
-            // builder.append(message.when.toString());
             builder.append("> ");
             builder.append(message.username);
             builder.append(": ");
@@ -231,7 +230,7 @@ public class ChatActivity extends AppCompatActivity
 
     public void listUsers(M.ListUsers lu) {
         StringBuilder builder = new StringBuilder();
-        if (!lu.recepient.equals(Conn.recepient)) {
+        if (!lu.recepient.equals(Conn.getRecepient())) {
             return;
         }
         for (String name : lu.users) {
