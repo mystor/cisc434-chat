@@ -9,19 +9,16 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="cisc434.androidchat.ChatActivity"
-    tools:showIn="@layout/app_bar_chat">
+    tools:context="cisc434.androidchat.ChatActivity">
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/txtMessage"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:imeOptions="actionSend"
-        android:singleLine="true"
-        android:layout_alignParentEnd="true"
-        android:inputType="text" />
+        android:inputType="text|textMultiLine"
+        android:layout_toLeftOf="@+id/btnSend"
+        android:layout_toStartOf="@+id/btnSend" />
 
     <ScrollView
         android:layout_width="wrap_content"
@@ -46,5 +43,15 @@
             android:layout_alignRight="@+id/txtMessage"
             android:layout_alignEnd="@+id/txtMessage" />
     </ScrollView>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send"
+        android:id="@+id/btnSend"
+        android:layout_below="@+id/scrollView"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:onClick="sendMessage" />
 
 </RelativeLayout>

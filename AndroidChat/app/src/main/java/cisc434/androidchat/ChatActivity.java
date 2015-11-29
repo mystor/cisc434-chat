@@ -133,29 +133,23 @@ public class ChatActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        EditText edit_txt = (EditText) findViewById(R.id.txtMessage);
 
-        edit_txt.setOnEditorActionListener(new EditText.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId != EditorInfo.IME_ACTION_UNSPECIFIED &&
-                        actionId != EditorInfo.IME_ACTION_SEND) {
-                    return false;
-                }
-                String text = v.getText().toString();
-                if (text.equals("")) {
-                    return false;
-                }
-                new SendMessageTask(Conn.getRecepient(), text).execute();
-
-                Log.w("chatApp", v.getText().toString());
-                v.setText("");
-                return true;
-            }
-        });
 
         Conn.setRecepient(this, new M.ChannelRecepient("general"));
         Conn.startConnThread(this);
+    }
+
+    public void sendMessage(View view){
+        EditText v = (EditText) findViewById(R.id.txtMessage);
+        String text = v.getText().toString();
+        if (text.equals("")) {
+            return;
+        }
+        new SendMessageTask(Conn.getRecepient(), text).execute();
+
+        Log.w("chatApp", v.getText().toString());
+        v.setText("");
+        return;
     }
 
     @Override
