@@ -1,6 +1,7 @@
 package cisc434.androidchat;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -129,7 +131,6 @@ public class ChatActivity extends AppCompatActivity
         });
 
         Conn.setRecepient(this, new M.ChannelRecepient("general"));
-        Conn.getRoom(this, Conn.getRecepient());
         Conn.startConnThread(this);
     }
 
@@ -184,8 +185,16 @@ public class ChatActivity extends AppCompatActivity
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             M.Recepient recipient =
-                                    M.RecepientFactory.parse(et.getText().toString());
-                            Conn.getRoom(ChatActivity.this, recipient);
+                                    M.RecepientFactory.parseChannel(et.getText().toString());
+                            if (recipient == null) {
+                                Context context = ChatActivity.this.getApplicationContext();
+                                CharSequence text = "Invalid channel format. Channels must be " +
+                                        "alphanumeric, and start with a #";
+                                int duration = Toast.LENGTH_LONG;
+                                Toast toast = Toast.makeText(context, text, duration);
+                                toast.show();
+                                return;
+                            }
                             Conn.setRecepient(ChatActivity.this, recipient);
                             updateMessages();
                         }
@@ -198,7 +207,6 @@ public class ChatActivity extends AppCompatActivity
                     }).show();
         } else {
             M.Recepient recipient = M.RecepientFactory.parse(title);
-            ChatRoom room = Conn.getRoom(this, recipient);
             Conn.setRecepient(this, recipient);
             updateMessages();
         }

@@ -83,7 +83,6 @@ class LoginTask extends AsyncTask<M.Login, Void, Boolean> {
             Context context = activity.getApplicationContext();
             CharSequence text = "Login failed...";
             int duration = Toast.LENGTH_LONG;
-
             Toast toast = Toast.makeText(context, text, duration);
             toast.show();
         }

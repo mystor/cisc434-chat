@@ -83,6 +83,7 @@ public class Conn {
 
     public static synchronized void setRecepient(final ChatActivity activity, final M.Recepient recepient) {
         Conn.recepient = recepient;
+        getRoom(activity, recepient);
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {

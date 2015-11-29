@@ -18,6 +18,13 @@ public class M {
      * are not supported
      */
     public static class RecepientFactory {
+        public static Recepient parseChannel(String s) {
+            if (!s.matches("#[a-zA-Z0-9]+")) {
+                return null;
+            }
+            return new ChannelRecepient(s.substring(1));
+        }
+
         public static Recepient parse(String s) {
             if (s.startsWith("#")) {
                 return new ChannelRecepient(s.substring(1));
@@ -59,11 +66,10 @@ public class M {
         public String toString() {
             Iterator<String> iter = recepients.iterator();
             String s = iter.next();
-            String it = iter.next();
-            while (it != null) {
-                s += ",";
+            while (iter.hasNext()) {
+                String it = iter.next();
+                s += ", ";
                 s += it;
-                it = iter.next();
             }
             return s;
         }
