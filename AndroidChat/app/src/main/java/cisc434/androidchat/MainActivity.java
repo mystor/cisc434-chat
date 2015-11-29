@@ -29,12 +29,10 @@ class LoginTask extends AsyncTask<M.Login, Void, Boolean> {
 
     private Activity activity;
     private String server;
-    private int port;
 
-    public LoginTask(Activity activity, String server, int port) {
+    public LoginTask(Activity activity, String server) {
         this.activity = activity;
         this.server = server;
-        this.port = port;
     }
 
     @Override
@@ -45,9 +43,9 @@ class LoginTask extends AsyncTask<M.Login, Void, Boolean> {
 
         M.Login login = logins[0];
 
-        Log.i(TAG, "Connecting to " + server + ":" + port);
+        Log.i(TAG, "Connecting to " + server + ":" + 9095);
         try {
-            Conn.s = new Socket(server, port);
+            Conn.s = new Socket(server, 9095);
         } catch (Exception e) {
             Log.e(TAG, e.toString());
             Conn.clear();
@@ -146,8 +144,8 @@ public class MainActivity extends AppCompatActivity {
         }
         EditText server = (EditText) findViewById(R.id.txtServer);
         String srv = server.getText().toString();
-        if (!srv.matches("[0-9]+.[0-9]+.[0-9]+.[0-9]+:[0-9]+")){
-            password.setError("Must enter a server address of the format <ip>:<port>");
+        if (!srv.matches("[0-9]+.[0-9]+.[0-9]+.[0-9]+")){
+            password.setError("Must enter a server address of the format <ip>");
             inputError = true;
         }
 
@@ -155,21 +153,12 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        String[] parts = srv.split(":");
-
-        if (parts.length != 2) {
-            Log.w(TAG, "The server parts were wrong! What's wrong with you evil person!");
-        }
-
-        String ip = parts[0];
-        int port = Integer.parseInt(parts[1]);
-
         M.Login login = new M.Login();
         login.username = un;
         login.password = pass;
         Conn.username = un;
 
-        new LoginTask(this, ip, port).execute(login);
+        new LoginTask(this, srv).execute(login);
     }
 
 

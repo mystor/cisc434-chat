@@ -188,8 +188,9 @@ public class ChatActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            Conn.clear();
-            super.onBackPressed();
+            // Conn.clear();
+            System.exit(0);
+            // super.onBackPressed();
         }
     }
 

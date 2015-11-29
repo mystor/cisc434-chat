@@ -5,6 +5,7 @@ import android.support.design.widget.NavigationView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.SubMenu;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -86,6 +87,15 @@ class ConnThread implements Runnable {
             try {
                 socket.close();
             } catch (Exception e) {e.printStackTrace();}
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast toast = Toast.makeText(activity, "Connection lost", Toast.LENGTH_LONG);
+                    toast.show();
+                    activity.finish();
+                    System.exit(0);
+                }
+            });
         }
     }
 }
@@ -100,8 +110,6 @@ public class Conn {
 
     private static M.Recepient recepient = null;
     private static HashMap<M.Recepient, ChatRoom> rooms = new HashMap<>();
-
-    public static ArrayList<M.Recepient> roomList = new ArrayList<>();
     public static String username;
 
     public static synchronized M.Recepient getRecepient() {
@@ -186,6 +194,7 @@ public class Conn {
         os = null;
         recepient = null;
         rooms = new HashMap<>();
+        username = null;
 
         // System.exit(0);
     }
