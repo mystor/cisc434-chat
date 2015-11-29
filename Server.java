@@ -196,6 +196,7 @@ class Room {
 
 class Server {
     private HashMap<String, User> users;
+    private Map<String, String> userPass = new HashMap<String, String>();
     private HashMap<M.Recepient, Room> chatrooms;
 
     public Server() {
@@ -214,7 +215,15 @@ class Server {
             return false;
         }
 
-        // XXX: Check the password
+        // Check the password
+        if (userPass.containsKey(user.name)){
+            if (!password.equals(userPass.get(user.name))){
+                System.err.println("Incorrect password for " + user.name);
+                return false;
+            }
+        } else {
+            userPass.put(user.name, password);
+        }
         users.put(user.name, user);
         return true;
     }
