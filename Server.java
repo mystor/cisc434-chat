@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.net.*;
 import java.util.*;
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 import cisc434.androidchat.M;
 
@@ -12,7 +13,6 @@ class User implements Runnable {
     private ObjectInputStream is;
     private Socket sock;
     private Server server;
-    private ArrayList<Room> rooms;
     private boolean disconnected;
 
     public User(Server srvr, Socket s) throws IOException {
@@ -20,7 +20,6 @@ class User implements Runnable {
         is = new ObjectInputStream(s.getInputStream());
         sock = s;
         server = srvr;
-        rooms = new ArrayList<Room>();
         disconnected = false;
     }
 
@@ -35,10 +34,6 @@ class User implements Runnable {
 
     private synchronized void disconnect() {
         server.disconnectUser(name);
-        for (Room r : rooms) {
-            r.removeUser(name);
-        }
-        rooms.clear();
         disconnected = true;
         try {
             sock.close();
@@ -87,6 +82,8 @@ class User implements Runnable {
             return;
         }
 
+        server.sendAllBacklog(this);
+
         // The login process is complete! Start the loop
         while (true) {
             if (disconnected) {
@@ -106,10 +103,7 @@ class User implements Runnable {
             if (msg instanceof M.JoinChannel) {
                 M.JoinChannel jc = (M.JoinChannel)msg;
 
-                Room r = server.joinChannel(jc.recepient, this);
-                if (r != null) {
-                    rooms.add(r);
-                }
+                server.joinChannel(jc.recepient, this);
                 continue;
             }
 
@@ -135,6 +129,14 @@ class User implements Runnable {
                 ArrayList<String> channels = server.allChannels();
                 M.ListAllChannels response = new M.ListAllChannels();
                 response.channels = channels;
+                send(response);
+                continue;
+            }
+
+            if (msg instanceof M.DMUsersReq) {
+                ArrayList<String> users = server.allUsers();
+                M.DMUsers response = new M.DMUsers();
+                response.users = users;
                 send(response);
                 continue;
             }
@@ -168,8 +170,16 @@ class Room {
         }
     }
 
+    public synchronized TreeSet<String> getUsers() {
+        return new TreeSet<>(users);
+    }
+
     public synchronized boolean newUser(User user) {
         if (recepient instanceof M.DMRecepient) {
+            return false;
+        }
+
+        if (users.contains(user.name)) {
             return false;
         }
 
@@ -177,12 +187,16 @@ class Room {
         users.add(user.name);
 
         // Send all previous messages to the user
-        for (M.RcvMessage msg : messages) {
-            user.send(msg);
-        }
+        sendAllBacklog(user);
 
         sendMessage("system", new Date(), user.name + " has joined the channel");
         return true;
+    }
+
+    public synchronized void sendAllBacklog(User user) {
+        for (M.RcvMessage msg : messages) {
+            user.send(msg);
+        }
     }
 
     public synchronized void sendMessage(String user, Date date, String body) {
@@ -201,6 +215,7 @@ class Room {
 
     public synchronized void removeUser(String user) {
         users.remove(user);
+        sendMessage("system", new Date(), user + " has left the channel");
     }
 
     public synchronized TreeSet<String> usersList() {
@@ -277,6 +292,14 @@ class Server {
         return room.usersList();
     }
 
+    public synchronized ArrayList<String> allUsers() {
+        ArrayList<String> res = new ArrayList<>();
+        for (String it : userPass.keySet()) {
+            res.add(it);
+        }
+        return res;
+    }
+
     public synchronized ArrayList<String> allChannels() {
         ArrayList<String> res = new ArrayList<>();
         for (M.Recepient it : chatrooms.keySet()) {
@@ -285,6 +308,14 @@ class Server {
             }
         }
         return res;
+    }
+
+    public synchronized void sendAllBacklog(User user) {
+        for (Room room : chatrooms.values()) {
+            if (room.getUsers().contains(user.name)) {
+                room.sendAllBacklog(user);
+            }
+        }
     }
 
     public synchronized boolean sendToUser(String username, Serializable msg) {

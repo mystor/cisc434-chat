@@ -9,7 +9,7 @@
     <item
         android:id="@+id/action_users"
         android:orderInCategory="200"
-        android:title="Show Users"
+        android:title="Show Users in Channel"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_all_channels"

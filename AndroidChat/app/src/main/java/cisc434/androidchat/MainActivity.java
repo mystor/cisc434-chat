@@ -167,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
         M.Login login = new M.Login();
         login.username = un;
         login.password = pass;
+        Conn.username = un;
 
         new LoginTask(this, ip, port).execute(login);
     }

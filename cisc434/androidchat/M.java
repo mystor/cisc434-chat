@@ -148,4 +148,9 @@ public class M {
     public static class ListAllChannels implements Serializable {
         public ArrayList<String> channels;
     }
+
+    public static class DMUsersReq implements Serializable {}
+    public static class DMUsers implements Serializable {
+        public ArrayList<String> users;
+    }
 }

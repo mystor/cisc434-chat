@@ -3,6 +3,7 @@ package cisc434.androidchat;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.database.DataSetObserver;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -13,21 +14,50 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
+
+class DMUsersTask extends AsyncTask<Void, Void, Boolean> {
+
+    @Override
+    protected Boolean doInBackground(Void... params) {
+        M.DMUsersReq msg = new M.DMUsersReq();
+
+        try {
+            Conn.os.writeObject(msg);
+        } catch (IOException e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    protected void onPostExecute(Boolean succeeded) {
+        if (!succeeded) {
+            // XXX: Handle the error
+        }
+    }
+}
 
 class AllChannelsTask extends AsyncTask<Void, Void, Boolean> {
 
@@ -227,6 +257,8 @@ public class ChatActivity extends AppCompatActivity
                             dialog.cancel();
                         }
                     }).show();
+        } else if (title.equals("Direct Message...")) {
+            new DMUsersTask().execute();
         } else {
             M.Recepient recipient = M.RecepientFactory.parse(title);
             Conn.setRecepient(this, recipient);
@@ -269,7 +301,7 @@ public class ChatActivity extends AppCompatActivity
         }
 
         new AlertDialog.Builder(this)
-                .setTitle("User List")
+                .setTitle("Users in Channel")
                 .setMessage(builder.toString())
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
@@ -285,11 +317,44 @@ public class ChatActivity extends AppCompatActivity
         }
 
         new AlertDialog.Builder(this)
-                .setTitle("All Channels List")
+                .setTitle("All Channels")
                 .setMessage(builder.toString())
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {}
                 }).show();
+    }
+
+    public void startDirectMessage(final ArrayList<String> users) {
+        final ListView v = new ListView(this);
+        v.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        v.setAdapter(new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_multiple_choice,
+                users));
+
+        new AlertDialog.Builder(this)
+                .setTitle("Direct Message")
+                .setView(v)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        SparseBooleanArray checked = v.getCheckedItemPositions();
+                        ArrayList<String> selectedItems = new ArrayList<String>();
+                        for (int i = 0; i < checked.size(); i++) {
+                            // Item position in adapter
+                            int position = checked.keyAt(i);
+                            // Add sport if it is checked i.e.) == TRUE!
+                            if (checked.valueAt(i))
+                                selectedItems.add(users.get(position));
+                        }
+
+                        selectedItems.add(Conn.username);
+
+                        Conn.setRecepient(ChatActivity.this,
+                                new M.DMRecepient(new TreeSet<String>(selectedItems)));
+                        updateMessages();
+                    }
+                })
+                .show();
     }
 }

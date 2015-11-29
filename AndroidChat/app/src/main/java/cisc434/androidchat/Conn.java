@@ -64,6 +64,18 @@ class ConnThread implements Runnable {
                         }
                     });
                 }
+
+                if (message instanceof M.DMUsers) {
+                    final M.DMUsers du = (M.DMUsers) message;
+
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            activity.startDirectMessage(du.users);
+                        }
+                    });
+
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -87,6 +99,7 @@ public class Conn {
     private static HashMap<M.Recepient, ChatRoom> rooms = new HashMap<>();
 
     public static ArrayList<M.Recepient> roomList = new ArrayList<>();
+    public static String username;
 
     public static synchronized M.Recepient getRecepient() {
         return recepient;
@@ -115,6 +128,7 @@ public class Conn {
                     Menu m = nv.getMenu();
                     m.clear();
                     m.add("Join room...");
+                    m.add("Direct Message...");
                     for (M.Recepient room : rooms.keySet()) {
                         m.add(room.toString());
                     }
