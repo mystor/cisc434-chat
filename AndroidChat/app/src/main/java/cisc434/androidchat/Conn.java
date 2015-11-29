@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.support.design.widget.NavigationView;
 import android.util.Log;
 import android.view.Menu;
+import android.view.SubMenu;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -11,6 +12,8 @@ import java.io.ObjectOutputStream;
 import java.io.OptionalDataException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 class ConnThread implements Runnable {
@@ -127,10 +130,20 @@ public class Conn {
                             (NavigationView) activity.findViewById(R.id.nav_view);
                     Menu m = nv.getMenu();
                     m.clear();
-                    m.add("Join room...");
+                    m.add("Join channel...");
                     m.add("Direct Message...");
-                    for (M.Recepient room : rooms.keySet()) {
-                        m.add(room.toString());
+                    SubMenu sm = m.addSubMenu("Conversations");
+
+                    ArrayList<M.Recepient> recepients = new ArrayList<>(rooms.keySet());
+                    Collections.sort(recepients, new Comparator<M.Recepient>() {
+                        @Override
+                        public int compare(M.Recepient lhs, M.Recepient rhs) {
+                            return lhs.toString().compareTo(rhs.toString());
+                        }
+                    });
+
+                    for (M.Recepient room : recepients) {
+                        sm.add(room.toString());
                     }
                 }
             });

@@ -227,11 +227,11 @@ public class ChatActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         String title = item.getTitle().toString();
 
-        if (title.equals("Join room...")) {
+        if (title.equals("Join channel...")) {
             final EditText et = new EditText(this);
             et.setInputType(InputType.TYPE_CLASS_TEXT);
             new AlertDialog.Builder(this)
-                    .setTitle("Enter room name")
+                    .setTitle("Enter channel name")
                     .setView(et)
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override

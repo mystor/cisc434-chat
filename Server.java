@@ -118,9 +118,19 @@ class User implements Runnable {
                 M.ListUsersReq lu = (M.ListUsersReq) msg;
 
                 TreeSet<String> usersList = server.usersList(lu.recepient);
+                TreeSet<String> userRealList = new TreeSet<>();
+
+                for (String user : usersList) {
+                    if (!server.isOnline(user)) {
+                        userRealList.add(user + " (offline)");
+                    } else {
+                        userRealList.add(user);
+                    }
+                }
+
                 M.ListUsers response = new M.ListUsers();
                 response.recepient = lu.recepient;
-                response.users = usersList;
+                response.users = userRealList;
                 send(response);
                 continue;
             }
@@ -134,9 +144,11 @@ class User implements Runnable {
             }
 
             if (msg instanceof M.DMUsersReq) {
-                ArrayList<String> users = server.allUsers();
+                TreeSet<String> users = server.allUsers();
+                if (users.contains(name))
+                    users.remove(name);
                 M.DMUsers response = new M.DMUsers();
-                response.users = users;
+                response.users = new ArrayList<>(users);
                 send(response);
                 continue;
             }
@@ -292,8 +304,8 @@ class Server {
         return room.usersList();
     }
 
-    public synchronized ArrayList<String> allUsers() {
-        ArrayList<String> res = new ArrayList<>();
+    public synchronized TreeSet<String> allUsers() {
+        TreeSet<String> res = new TreeSet<>();
         for (String it : userPass.keySet()) {
             res.add(it);
         }
@@ -330,6 +342,10 @@ class Server {
 
     public synchronized void disconnectUser(String username) {
         users.remove(username);
+    }
+
+    public synchronized boolean isOnline(String user) {
+        return users.containsKey(user);
     }
 
     public void run() throws IOException {
