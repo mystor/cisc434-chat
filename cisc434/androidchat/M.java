@@ -17,7 +17,22 @@ public class M {
      * Either a DMRecepient or a ChannelRecepient. Other Recepients
      * are not supported
      */
-    public interface Recepient extends Serializable {}
+    public static class RecepientFactory {
+        public static Recepient parse(String s) {
+            if (s.startsWith("#")) {
+                return new ChannelRecepient(s.substring(1));
+            } else {
+                String[] parts = s.split(",");
+                TreeSet<String> rs = new TreeSet<>();
+                for (String part : parts) {
+                    rs.add(part.trim());
+                }
+                return new DMRecepient(rs);
+            }
+        }
+    }
+    public interface Recepient extends Serializable {
+    }
     public static class DMRecepient implements Recepient {
         public final TreeSet<String> recepients;
 
@@ -112,14 +127,14 @@ public class M {
      * A request to list the users in a channel
      */
     public static class ListUsersReq implements Serializable {
-        public String channel;
+        public Recepient recepient;
     }
 
     /**
      * A listing of the users in a channel
      */
     public static class ListUsers implements Serializable {
-        public String channel;
+        public Recepient recepient;
         public TreeSet<String> users;
     }
 }

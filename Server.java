@@ -121,9 +121,9 @@ class User implements Runnable {
             if (msg instanceof M.ListUsersReq) {
                 M.ListUsersReq lu = (M.ListUsersReq) msg;
 
-                TreeSet<String> usersList = server.usersList(lu.channel);
+                TreeSet<String> usersList = server.usersList(lu.recepient);
                 M.ListUsers response = new M.ListUsers();
-                response.channel = lu.channel;
+                response.recepient = lu.recepient;
                 response.users = usersList;
                 send(response);
                 continue;
@@ -245,8 +245,7 @@ class Server {
         return true;
     }
 
-    public synchronized TreeSet<String> usersList(String channel) {
-        M.Recepient recepient = new M.ChannelRecepient(channel);
+    public synchronized TreeSet<String> usersList(M.Recepient recepient) {
         Room room = chatrooms.get(recepient);
         if (room == null) {
             return new TreeSet<String>();

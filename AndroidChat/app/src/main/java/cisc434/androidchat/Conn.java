@@ -1,13 +1,16 @@
 package cisc434.androidchat;
 
 import android.os.AsyncTask;
+import android.support.design.widget.NavigationView;
 import android.util.Log;
+import android.view.Menu;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OptionalDataException;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 class ConnThread implements Runnable {
@@ -72,9 +75,25 @@ public class Conn {
     public static M.Recepient recepient = null;
     private static HashMap<M.Recepient, ChatRoom> rooms = new HashMap<>();
 
+    public static ArrayList<M.Recepient> roomList = new ArrayList<>();
+
     public static synchronized ChatRoom getRoom(final ChatActivity activity, M.Recepient recepient) {
         if (!rooms.containsKey(recepient)) {
             rooms.put(recepient, new ChatRoom(recepient));
+
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    NavigationView nv =
+                            (NavigationView) activity.findViewById(R.id.nav_view);
+                    Menu m = nv.getMenu();
+                    m.clear();
+                    m.add("Join room...");
+                    for (M.Recepient room : rooms.keySet()) {
+                        m.add(room.toString());
+                    }
+                }
+            });
 
             M.JoinChannel req = new M.JoinChannel();
             req.recepient = recepient;
