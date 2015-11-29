@@ -11,4 +11,9 @@
         android:orderInCategory="200"
         android:title="Show Users"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_all_channels"
+        android:orderInCategory="200"
+        android:title="Show All Channels"
+        app:showAsAction="never" />
 </menu>

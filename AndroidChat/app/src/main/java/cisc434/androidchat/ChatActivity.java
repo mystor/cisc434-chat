@@ -26,7 +26,31 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
+
+class AllChannelsTask extends AsyncTask<Void, Void, Boolean> {
+
+    @Override
+    protected Boolean doInBackground(Void... params) {
+        M.ListAllChannelsReq msg = new M.ListAllChannelsReq();
+
+        try {
+            Conn.os.writeObject(msg);
+        } catch (IOException e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    protected void onPostExecute(Boolean succeeded) {
+        if (!succeeded) {
+            // XXX: Handle the error
+        }
+    }
+}
 
 class ListUsersTask extends AsyncTask<Void, Void, Boolean> {
     private final M.Recepient recepient;
@@ -168,6 +192,10 @@ public class ChatActivity extends AppCompatActivity
             new ListUsersTask(Conn.getRecepient()).execute();
         }
 
+        if (id == R.id.action_all_channels) {
+            new AllChannelsTask().execute();
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -248,6 +276,22 @@ public class ChatActivity extends AppCompatActivity
 
         new AlertDialog.Builder(this)
                 .setTitle("User List")
+                .setMessage(builder.toString())
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {}
+                }).show();
+    }
+
+    public void listAllChannels(ArrayList<String> channels) {
+        StringBuilder builder = new StringBuilder();
+        for (String name : channels) {
+            builder.append(name);
+            builder.append("\n");
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("All Channels List")
                 .setMessage(builder.toString())
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override

@@ -143,4 +143,9 @@ public class M {
         public Recepient recepient;
         public TreeSet<String> users;
     }
+
+    public static class ListAllChannelsReq implements Serializable {}
+    public static class ListAllChannels implements Serializable {
+        public ArrayList<String> channels;
+    }
 }

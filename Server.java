@@ -2,6 +2,8 @@ import java.io.*;
 import java.io.IOException;
 import java.net.*;
 import java.util.*;
+import java.util.ArrayList;
+
 import cisc434.androidchat.M;
 
 class User implements Runnable {
@@ -129,6 +131,14 @@ class User implements Runnable {
                 continue;
             }
 
+            if (msg instanceof M.ListAllChannelsReq) {
+                ArrayList<String> channels = server.allChannels();
+                M.ListAllChannels response = new M.ListAllChannels();
+                response.channels = channels;
+                send(response);
+                continue;
+            }
+
             System.err.println("Unrecognized message kind");
         }
     }
@@ -159,6 +169,10 @@ class Room {
     }
 
     public synchronized boolean newUser(User user) {
+        if (recepient instanceof M.DMRecepient) {
+            return false;
+        }
+
         // Add the user to the channel
         users.add(user.name);
 
@@ -261,6 +275,16 @@ class Server {
         }
 
         return room.usersList();
+    }
+
+    public synchronized ArrayList<String> allChannels() {
+        ArrayList<String> res = new ArrayList<>();
+        for (M.Recepient it : chatrooms.keySet()) {
+            if (it instanceof M.ChannelRecepient) {
+                res.add(it.toString());
+            }
+        }
+        return res;
     }
 
     public synchronized boolean sendToUser(String username, Serializable msg) {

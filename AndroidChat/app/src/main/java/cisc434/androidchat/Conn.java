@@ -53,6 +53,17 @@ class ConnThread implements Runnable {
                         }
                     });
                 }
+
+                if (message instanceof M.ListAllChannels) {
+                    final M.ListAllChannels lac = (M.ListAllChannels) message;
+
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            activity.listAllChannels(lac.channels);
+                        }
+                    });
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
