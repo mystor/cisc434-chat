@@ -10,6 +10,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
@@ -128,12 +129,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void sayHello(View v){
+        boolean inputError = false;
         EditText username = (EditText) findViewById(R.id.txtUsername);
         String un = username.getText().toString();
+        if (TextUtils.isEmpty(un)){
+            username.setError("Must enter a username");
+            inputError = true;
+        } else if (!un.matches("[A-Za-z0-9]+")){
+            username.setError("Username must be alphanumeric with no spaces");
+            inputError = true;
+        }
         EditText password = (EditText) findViewById(R.id.txtPassword);
         String pass = password.getText().toString();
+        if (TextUtils.isEmpty(pass)){
+            password.setError("Must enter a password");
+            inputError = true;
+        }
         EditText server = (EditText) findViewById(R.id.txtServer);
         String srv = server.getText().toString();
+        if (!srv.matches("[0-9]+.[0-9]+.[0-9]+.[0-9]+:[0-9]+")){
+            password.setError("Must enter a server address of the format <ip>:<port>");
+            inputError = true;
+        }
+
+        if (inputError){
+            return;
+        }
 
         String[] parts = srv.split(":");
 
