@@ -1,5 +1,6 @@
 import java.io.*;
 import java.io.IOException;
+import java.lang.StringBuilder;
 import java.net.*;
 import java.util.*;
 import java.util.ArrayList;
@@ -186,10 +187,8 @@ class Room {
             M.DMRecepient dr = (M.DMRecepient)recepient;
             // Add all of the users to this room
             users = new TreeSet<String>(dr.recepients);
-            // XXX: Do we want to tell users that they joined a group chat?
-            for (String username : users) {
-                sendMessage("system", new Date(), username + " has joined the channel");
-            }
+
+            sendMessage("system", new Date(), "direct message conversation started");
         } else {
             users = new TreeSet<String>();
         }

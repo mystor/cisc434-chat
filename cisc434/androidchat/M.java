@@ -109,8 +109,6 @@ public class M {
         public Recepient recepient;
     }
 
-    // XXX: Leave channel message?
-
     /**
      * A request to send a message
      */

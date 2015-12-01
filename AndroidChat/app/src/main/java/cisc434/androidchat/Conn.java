@@ -34,12 +34,19 @@ class ConnThread implements Runnable {
                 Object message = is.readObject();
 
                 if (message instanceof M.RcvMessage) {
-                    M.RcvMessage rm = (M.RcvMessage) message;
+                    final M.RcvMessage rm = (M.RcvMessage) message;
                     ChatRoom room = Conn.getRoom(activity, rm.recepient);
                     room.addMessage(rm);
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            if (!Conn.getRecepient().equals(rm.recepient)) {
+                                Toast toast = Toast.makeText(
+                                        activity.getApplicationContext(),
+                                        "activity in " + rm.recepient.toString(),
+                                        Toast.LENGTH_SHORT);
+                                toast.show();
+                            }
                             activity.updateMessages();
                         }
                     });
