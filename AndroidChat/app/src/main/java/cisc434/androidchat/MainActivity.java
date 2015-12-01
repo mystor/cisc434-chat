@@ -60,7 +60,7 @@ class LoginTask extends AsyncTask<M.Login, Void, Boolean> {
             Object response = Conn.is.readObject();
 
             if (!(response instanceof M.LoggedIn)) {
-                throw new Exception("SHIT");
+                throw new Exception("Something went very wrong.");
             }
         } catch (Exception e) {
             Log.e(TAG, e.toString());
@@ -90,10 +90,6 @@ class LoginTask extends AsyncTask<M.Login, Void, Boolean> {
 
 
 public class MainActivity extends AppCompatActivity {
-
-    static String TAG = "chatApp";
-
-    Socket socket;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,6 +157,5 @@ public class MainActivity extends AppCompatActivity {
 
         new LoginTask(this, srv).execute(login);
     }
-
 
 }
