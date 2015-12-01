@@ -156,8 +156,6 @@ public class ChatActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
-
         Conn.setRecepient(this, new M.ChannelRecepient("general"));
         Conn.startConnThread(this);
     }
@@ -204,14 +202,12 @@ public class ChatActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_exit) {
             System.exit(0);
-        }
-
-        if (id == R.id.action_users) {
+        } else if (id == R.id.action_users) {
             new ListUsersTask(Conn.getRecepient()).execute();
-        }
-
-        if (id == R.id.action_all_channels) {
+        } else if (id == R.id.action_all_channels) {
             new AllChannelsTask().execute();
+        } else if (id == R.id.action_leave_channel){
+            // TODO implement leave channel
         }
 
         return super.onOptionsItemSelected(item);
