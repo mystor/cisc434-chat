@@ -29,6 +29,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
+class LeaveRoomTask extends AsyncTask<Void, Void, Void> {
+
+    private M.Recepient channel;
+
+    public LeaveRoomTask(M.Recepient channel) {
+        this.channel = channel;
+    }
+
+    @Override
+    protected Void doInBackground(Void... params) {
+        M.LeaveChannel msg = new M.LeaveChannel();
+        msg.recepient = channel;
+        try {
+            Conn.os.writeObject(msg);
+        } catch (IOException e) { /* ignore */ }
+        return null;
+    }
+}
+
+
 class DMUsersTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
@@ -42,13 +62,6 @@ class DMUsersTask extends AsyncTask<Void, Void, Boolean> {
         }
 
         return true;
-    }
-
-    @Override
-    protected void onPostExecute(Boolean succeeded) {
-        if (!succeeded) {
-            // XXX: Handle the error
-        }
     }
 }
 
@@ -65,13 +78,6 @@ class AllChannelsTask extends AsyncTask<Void, Void, Boolean> {
         }
 
         return true;
-    }
-
-    @Override
-    protected void onPostExecute(Boolean succeeded) {
-        if (!succeeded) {
-            // XXX: Handle the error
-        }
     }
 }
 
@@ -94,13 +100,6 @@ class ListUsersTask extends AsyncTask<Void, Void, Boolean> {
         }
 
         return true;
-    }
-
-    @Override
-    protected void onPostExecute(Boolean succeeded) {
-        if (!succeeded) {
-            // XXX: Handle the error
-        }
     }
 }
 
@@ -126,13 +125,6 @@ class SendMessageTask extends AsyncTask<Void, Void, Boolean> {
         }
 
         return true;
-    }
-
-    @Override
-    protected void onPostExecute(Boolean succeeded) {
-        if (!succeeded) {
-            // XXX: Handle the error
-        }
     }
 }
 

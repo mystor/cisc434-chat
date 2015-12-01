@@ -153,6 +153,18 @@ class User implements Runnable {
                 continue;
             }
 
+            if (msg instanceof M.LeaveChannel) {
+                M.LeaveChannel lc = (M.LeaveChannel)msg;
+                if (!(lc.recepient instanceof M.ChannelRecepient)) {
+                    continue;
+                }
+                server.leaveChannel(lc.recepient, this);
+
+                M.LeftChannel response = new M.LeftChannel();
+                response.recepient = lc.recepient;
+                send(response);
+            }
+
             System.err.println("Unrecognized message kind");
         }
     }
@@ -280,6 +292,15 @@ class Server {
             return room;
         }
         return null; // The user is already in this room
+    }
+
+    public synchronized void leaveChannel(M.Recepient recepient, User user) {
+        Room room = chatrooms.get(recepient);
+        if (room == null) {
+            return;
+        }
+
+        room.removeUser(user.name);
     }
 
     public synchronized boolean sendMessage(User user, M.Recepient recepient, String message) {

@@ -78,6 +78,12 @@ class ConnThread implements Runnable {
                     });
 
                 }
+
+                if (message instanceof M.LeftChannel) {
+                    final M.LeftChannel lc = (M.LeftChannel) message;
+
+                    Conn.leaveRoom(activity, lc.recepient);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -122,34 +128,38 @@ public class Conn {
         });
     }
 
+    private static synchronized void updateRoomsUI(final ChatActivity activity) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                NavigationView nv =
+                        (NavigationView) activity.findViewById(R.id.nav_view);
+                Menu m = nv.getMenu();
+                m.clear();
+                m.add("Join channel...");
+                m.add("Direct Message...");
+                SubMenu sm = m.addSubMenu("Conversations");
+
+                ArrayList<M.Recepient> recepients = new ArrayList<>(rooms.keySet());
+                Collections.sort(recepients, new Comparator<M.Recepient>() {
+                    @Override
+                    public int compare(M.Recepient lhs, M.Recepient rhs) {
+                        return lhs.toString().compareTo(rhs.toString());
+                    }
+                });
+
+                for (M.Recepient room : recepients) {
+                    sm.add(room.toString());
+                }
+            }
+        });
+    }
+
     public static synchronized ChatRoom getRoom(final ChatActivity activity, M.Recepient recepient) {
         if (!rooms.containsKey(recepient)) {
             rooms.put(recepient, new ChatRoom(recepient));
 
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    NavigationView nv =
-                            (NavigationView) activity.findViewById(R.id.nav_view);
-                    Menu m = nv.getMenu();
-                    m.clear();
-                    m.add("Join channel...");
-                    m.add("Direct Message...");
-                    SubMenu sm = m.addSubMenu("Conversations");
-
-                    ArrayList<M.Recepient> recepients = new ArrayList<>(rooms.keySet());
-                    Collections.sort(recepients, new Comparator<M.Recepient>() {
-                        @Override
-                        public int compare(M.Recepient lhs, M.Recepient rhs) {
-                            return lhs.toString().compareTo(rhs.toString());
-                        }
-                    });
-
-                    for (M.Recepient room : recepients) {
-                        sm.add(room.toString());
-                    }
-                }
-            });
+            updateRoomsUI(activity);
 
             M.JoinChannel req = new M.JoinChannel();
             req.recepient = recepient;
@@ -174,6 +184,14 @@ public class Conn {
         }
 
         return rooms.get(recepient);
+    }
+
+    public static synchronized void leaveRoom(ChatActivity activity, M.Recepient recepient) {
+        if (rooms.containsKey(recepient)) {
+            rooms.remove(recepient);
+
+            updateRoomsUI(activity);
+        }
     }
 
     public static void startConnThread(ChatActivity activity) {

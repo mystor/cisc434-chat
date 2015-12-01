@@ -153,4 +153,11 @@ public class M {
     public static class DMUsers implements Serializable {
         public ArrayList<String> users;
     }
+
+    public static class LeaveChannel implements Serializable {
+        public Recepient recepient;
+    }
+    public static class LeftChannel implements Serializable {
+        public Recepient recepient;
+    }
 }
