@@ -54,11 +54,10 @@ public class M {
 
         @Override
         public boolean equals(Object o) {
-            DMRecepient or = (DMRecepient) o;
-            if (or == null) {
+            if (!(o instanceof DMRecepient)) {
                 return false;
             }
-
+            DMRecepient or = (DMRecepient) o;
             return or.recepients.equals(recepients);
         }
 
@@ -88,11 +87,10 @@ public class M {
 
         @Override
         public boolean equals(Object o) {
-            ChannelRecepient or = (ChannelRecepient) o;
-            if (or == null) {
+            if (!(o instanceof ChannelRecepient)) {
                 return false;
             }
-
+            ChannelRecepient or = (ChannelRecepient) o;
             return or.channel.equals(channel);
         }
 
