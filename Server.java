@@ -163,6 +163,7 @@ class User implements Runnable {
                 M.LeftChannel response = new M.LeftChannel();
                 response.recepient = lc.recepient;
                 send(response);
+                continue;
             }
 
             System.err.println("Unrecognized message kind");

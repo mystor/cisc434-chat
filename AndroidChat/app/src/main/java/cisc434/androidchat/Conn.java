@@ -186,11 +186,17 @@ public class Conn {
         return rooms.get(recepient);
     }
 
-    public static synchronized void leaveRoom(ChatActivity activity, M.Recepient recepient) {
+    public static synchronized void leaveRoom(final ChatActivity activity, M.Recepient recepient) {
         if (rooms.containsKey(recepient)) {
             rooms.remove(recepient);
-
-            updateRoomsUI(activity);
+            setRecepient(activity, new M.ChannelRecepient("general"));
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    activity.updateMessages();
+                    updateRoomsUI(activity);
+                }
+            });
         }
     }
 

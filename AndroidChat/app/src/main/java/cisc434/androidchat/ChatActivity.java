@@ -199,7 +199,23 @@ public class ChatActivity extends AppCompatActivity
         } else if (id == R.id.action_all_channels) {
             new AllChannelsTask().execute();
         } else if (id == R.id.action_leave_channel){
-            // TODO implement leave channel
+            if (Conn.getRecepient().toString().equals("#general")) {
+                Toast toast = Toast.makeText(
+                        this.getApplicationContext(),
+                        "Cannot leave the #general channel",
+                        Toast.LENGTH_SHORT);
+                toast.show();
+                return super.onOptionsItemSelected(item);
+            }
+            if (Conn.getRecepient() instanceof M.DMRecepient) {
+                Toast toast = Toast.makeText(
+                        this.getApplicationContext(),
+                        "Cannot leave a private channel",
+                        Toast.LENGTH_SHORT);
+                toast.show();
+                return super.onOptionsItemSelected(item);
+            }
+            new LeaveRoomTask(Conn.getRecepient()).execute();
         }
 
         return super.onOptionsItemSelected(item);
@@ -253,7 +269,6 @@ public class ChatActivity extends AppCompatActivity
     }
 
     public void updateMessages() {
-        // XXX: Implement
         ChatRoom room = Conn.getRoom(this, Conn.getRecepient());
         List<M.RcvMessage> messages = room.getMessages();
 
