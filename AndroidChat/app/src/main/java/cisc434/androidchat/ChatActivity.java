@@ -345,6 +345,15 @@ public class ChatActivity extends AppCompatActivity
                                 selectedItems.add(users.get(position));
                         }
 
+                        if (selectedItems.isEmpty()) {
+                            Toast toast = Toast.makeText(
+                                    ChatActivity.this.getApplicationContext(),
+                                    "No DM recipients selected",
+                                    Toast.LENGTH_SHORT);
+                            toast.show();
+                            return;
+                        }
+
                         selectedItems.add(Conn.username);
 
                         Conn.setRecepient(ChatActivity.this,
